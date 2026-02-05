@@ -1,109 +1,67 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML>
-<HEAD>
-	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
-	<TITLE></TITLE>
-	<META NAME="GENERATOR" CONTENT="OpenOffice 4.1.15  (Win32)">
-	<META NAME="CREATED" CONTENT="0;0">
-	<META NAME="CHANGED" CONTENT="0;0">
-	<STYLE TYPE="text/css">
-	<!--
-		@page { margin: 2cm }
-		P { margin-bottom: 0.21cm }
-		PRE { font-family: "Times New Roman", serif }
-	-->
-	</STYLE>
-</HEAD>
-<BODY LANG="de-DE" DIR="LTR">
-<PRE>&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;de&quot;&gt;
-&lt;head&gt;
-&lt;meta charset=&quot;UTF-8&quot;&gt;
-&lt;title&gt;Dark Portal Countdown&lt;/title&gt;
-&lt;style&gt;
-    html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        font-family: &quot;Trajan Pro&quot;, &quot;Cinzel&quot;, serif;
-        background: black;
+<script>
+const canvas = document.getElementById("felParticles");
+const ctx = canvas.getContext("2d");
+
+let particles = [];
+const particleCount = 120;
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+class FelParticle {
+    constructor() {
+        this.reset();
     }
 
-    body {
-        background-image: url(&quot;A_2D_digital_illustration_of_the_Dark_Portal_to_Ou.png&quot;);
-        background-size: cover;
-        background-position: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #7CFF00;
-        text-shadow: 0 0 15px #00ff66, 0 0 30px #003300;
+    reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 3 + 1;
+        this.speedY = Math.random() * 0.6 + 0.2;
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.alpha = Math.random() * 0.6 + 0.2;
     }
 
-    .overlay {
-        background: rgba(0, 0, 0, 0.55);
-        padding: 40px 60px;
-        border: 3px solid #1aff00;
-        border-radius: 12px;
-        box-shadow: 0 0 40px #00ff66;
-        text-align: center;
+    update() {
+        this.y -= this.speedY;
+        this.x += this.speedX;
+
+        if (this.y < -10 || this.x < -10 || this.x > canvas.width + 10) {
+            this.reset();
+            this.y = canvas.height + 10;
+        }
     }
 
-    h1 {
-        font-size: 48px;
-        margin-bottom: 20px;
-        letter-spacing: 3px;
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(124, 255, 0, ${this.alpha})`;
+        ctx.shadowColor = "#00ff66";
+        ctx.shadowBlur = 12;
+        ctx.fill();
     }
-
-    #countdown {
-        font-size: 64px;
-        font-weight: bold;
-        letter-spacing: 4px;
-    }
-
-    .subtitle {
-        margin-top: 20px;
-        font-size: 20px;
-        opacity: 0.85;
-    }
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;div class=&quot;overlay&quot;&gt;
-    &lt;h1&gt;DAS DUNKLE PORTAL &Atilde;&ndash;FFNET SICH IN&lt;/h1&gt;
-    &lt;div id=&quot;countdown&quot;&gt;--:--:--&lt;/div&gt;
-    &lt;div class=&quot;subtitle&quot;&gt;Bis Mitternacht&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;script&gt;
-function updateCountdown() {
-    const now = new Date();
-    const midnight = new Date();
-    midnight.setHours(24, 0, 0, 0);
-
-    const diff = midnight - now;
-
-    if (diff &lt;= 0) {
-        document.getElementById(&quot;countdown&quot;).innerHTML = &quot;JETZT!&quot;;
-        return;
-    }
-
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
-
-    document.getElementById(&quot;countdown&quot;).innerHTML =
-        String(hours).padStart(2, &quot;0&quot;) + &quot;:&quot; +
-        String(minutes).padStart(2, &quot;0&quot;) + &quot;:&quot; +
-        String(seconds).padStart(2, &quot;0&quot;);
 }
 
-updateCountdown();
-setInterval(updateCountdown, 1000);
-&lt;/script&gt;
+function initParticles() {
+    particles = [];
+    for (let i = 0; i < particleCount; i++) {
+        particles.push(new FelParticle());
+    }
+}
 
-&lt;/body&gt;
-&lt;/html&gt;</PRE>
-</BODY>
-</HTML>
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+    requestAnimationFrame(animate);
+}
+
+initParticles();
+animate();
+</script>
